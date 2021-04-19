@@ -3,4 +3,6 @@ module MapGenerator {
     requires javafx.fxml;
 
     opens sample;
+    opens sample.controllers;
+    exports sample.controllers;
 }
