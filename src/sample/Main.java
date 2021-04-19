@@ -36,9 +36,7 @@ public class Main extends Application {
 
     private void Init(){
         TileDatabase.Init();
-        for(TileSet tileSet: TileDatabase.tileSets){
-            controller.AddImage(tileSet.getImage());
-        }
+        Palette.Init();
     }
 
     public static void main(String[] args) {
