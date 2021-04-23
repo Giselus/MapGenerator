@@ -1,5 +1,6 @@
 package sample;
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -12,6 +13,7 @@ import java.net.URL;
 public class Main extends Application {
 
     public static MainSceneController controller;
+    public static Map map;
     @Override
     public void start(Stage primaryStage) throws Exception{
 
@@ -31,12 +33,28 @@ public class Main extends Application {
         primaryStage.show();
 
         Init();
-        
+
+        AnimationTimer timer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                tick();
+            }
+        };
+        timer.start();
+    }
+    private float lastFrameNanos;
+
+    private void tick(){
+        //Input -> logic -> rendering
+
+        map.Draw();
+
     }
 
     private void Init(){
         TileDatabase.Init();
         Palette.Init();
+        map = new Map();
     }
 
     public static void main(String[] args) {

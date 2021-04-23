@@ -6,6 +6,8 @@ import javafx.scene.image.ImageView;
 
 public class Palette {
 
+    private static Tile selectedTile;
+
     public static void Init(){
         Main.controller.setToTileSetMode();
         for(TileSet tileSet: TileDatabase.tileSets){
@@ -31,7 +33,12 @@ public class Palette {
         System.out.println(tileSet.getTilesInColumn() * tileSet.getTilesInRow());
     }
 
-    public static void chooseTile(Tile tile){//TODO: Change brush
-
+    public static void chooseTile(Tile tile){
+        selectedTile = tile;
     }
+    public static Tile getSelectedTile(){
+        return selectedTile;
+    }
+
+
 }

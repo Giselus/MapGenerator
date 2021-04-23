@@ -4,8 +4,11 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
@@ -14,10 +17,14 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
+import sample.Layer;
 import sample.Palette;
 import sample.Tile;
 import sample.TileSet;
+
+import java.util.ArrayList;
 
 public class MainSceneController {
 
@@ -27,6 +34,16 @@ public class MainSceneController {
     @FXML
     ScrollPane assetsBox;
 
+    @FXML
+    public Canvas canvas;
+
+    @FXML
+    Canvas canvas2;
+
+    @FXML
+    StackPane mainPane;
+
+    GraphicsContext gc;
 
     VBox vBox;
 
@@ -45,7 +62,9 @@ public class MainSceneController {
 
     @FXML
     public void initialize(){
-
+        gc = canvas2.getGraphicsContext2D();
+        gc.setFill(new Color(0.1,0.1,0.1,0.2));
+        gc.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
     }
 
     public void AddTileSet(ImageView view, TileSet tileSet){
@@ -91,6 +110,18 @@ public class MainSceneController {
         if(vBox != null)
             vBox.getChildren().clear();
 
+        Button returnButton = new Button();
+        returnButton.setText("Wróć");
+        returnButton.setPrefWidth(70);
+        returnButton.setPrefHeight(50);
+        returnButton.setMaxWidth(70);
+        returnButton.setMaxHeight(50);
+        returnButton.setTranslateX(135);
+        returnButton.setTranslateY(-350);
+        returnButton.setOnAction(e -> {Palette.Init();
+                                        mainPane.getChildren().remove(returnButton);});
+        mainPane.getChildren().add(returnButton);
+
         this.tileSize = tileSize;
         this.xSize = xSize;
         this.ySize = ySize;
@@ -108,7 +139,7 @@ public class MainSceneController {
 
         tilePane.setTileAlignment(Pos.CENTER);
 
-        tilePane.setOpacity(0);
+        tilePane.setOpacity(0.5);
 
         stackPane.setPadding(new Insets(50,0,0,(328 - tileSize*sizeX)/2));
         tilePane.setPrefWidth(tileSize * sizeX + (328 - tileSize * sizeX)/2);
@@ -125,6 +156,21 @@ public class MainSceneController {
         assetsBox.setContent(stackPane);
     }
 
+    public void clearCanvas(){
+        gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0,0,canvas.getWidth(),canvas.getHeight());
+    }
 
+    public void setCanvas(Tile tile, float a, float b){
+        gc = canvas.getGraphicsContext2D();
+        Image img = tile.getTileSet().getImage();
+        int size = tile.getTileSet().getTileSize();
+        gc.drawImage(img, tile.getX() * size,tile.getY()*size,
+                size,size,a,b,32,32);
+    }
+
+    public void LoadLayers(ArrayList<Layer> layers){
+
+    }
 
 }
