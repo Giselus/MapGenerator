@@ -10,13 +10,12 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.TilePane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import sample.Layer;
@@ -43,6 +42,10 @@ public class MainSceneController {
     @FXML
     StackPane mainPane;
 
+    @FXML
+    TilePane layersPane;
+
+
     GraphicsContext gc;
 
     VBox vBox;
@@ -65,6 +68,11 @@ public class MainSceneController {
         gc = canvas2.getGraphicsContext2D();
         gc.setFill(new Color(0.1,0.1,0.1,0.2));
         gc.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
+    }
+
+    @FXML
+    public void deleteLayer(){
+        Palette.getCurrentMap().deleteLayer();
     }
 
     public void AddTileSet(ImageView view, TileSet tileSet){
@@ -161,7 +169,7 @@ public class MainSceneController {
         gc.clearRect(0,0,canvas.getWidth(),canvas.getHeight());
     }
 
-    public void setCanvas(Tile tile, float a, float b){
+    public void setCanvas(Tile tile, int a, int b){
         gc = canvas.getGraphicsContext2D();
         Image img = tile.getTileSet().getImage();
         int size = tile.getTileSet().getTileSize();
@@ -169,8 +177,50 @@ public class MainSceneController {
                 size,size,a,b,32,32);
     }
 
-    public void LoadLayers(ArrayList<Layer> layers){
-
+    public Canvas getCanvas(){
+        return canvas;
     }
 
+    public void RefreshLayersGUI(ArrayList<Layer> layers){
+        layersPane.getChildren().clear();
+        Integer id = 0;
+        createAddLayerButton(id);
+        for(Layer layer: layers){
+            AnchorPane pane = new AnchorPane();
+            pane.setPrefWidth(95);
+            pane.setPrefHeight(30);
+            Button layerButton = new Button();
+            pane.getChildren().add(layerButton);
+
+            layerButton.setOnAction(e -> {
+                Palette.getCurrentMap().chooseLayer(layer);
+            });
+            layerButton.setText("Warstwa: " + (++id).toString());
+            layerButton.setPrefSize(80,30);
+
+            CheckBox visibleCheck = new CheckBox();
+            pane.getChildren().add(visibleCheck);
+            visibleCheck.setPrefSize(15,15);
+            visibleCheck.setSelected(layer.isDrawable());
+            visibleCheck.setOnAction(e -> {
+                layer.setDrawable(visibleCheck.isSelected());
+            });
+            visibleCheck.setLayoutX(80);
+            visibleCheck.setLayoutY(6.5);
+
+            layersPane.getChildren().add(pane);
+
+            createAddLayerButton(id);
+        }
+    }
+
+    private void createAddLayerButton(int id){
+        Button button = new Button();
+        button.setText("Dodaj");
+        button.setPrefSize(50,50);
+        button.setOnAction(e -> {
+            Palette.getCurrentMap().addLayer(id);
+        });
+        layersPane.getChildren().add(button);
+    }
 }

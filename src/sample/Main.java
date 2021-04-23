@@ -33,21 +33,25 @@ public class Main extends Application {
         primaryStage.show();
 
         Init();
+        KeyPolling.pollScene(scene);
 
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                tick();
+                float deltaTime = (float)((now - lastFrameNanos) /1e9);
+                lastFrameNanos = now;
+                tick(deltaTime);
             }
         };
         timer.start();
     }
     private float lastFrameNanos;
 
-    private void tick(){
+    private void tick(float deltaTime){
         //Input -> logic -> rendering
 
-        map.Draw();
+        map.Update(deltaTime);
+        Palette.Update();
 
     }
 
