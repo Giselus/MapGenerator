@@ -7,23 +7,27 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import sample.controllers.MainSceneController;
+import sample.controllers.MenuController;
 
 import java.net.URL;
 
 public class Main extends Application {
 
     public static MainSceneController controller;
-    public static Map map;
+    public static MenuController menuController;
+
+    public static Stage primaryStage;
+
     @Override
     public void start(Stage primaryStage) throws Exception{
-
+        Main.primaryStage = primaryStage;
         FXMLLoader loader = new FXMLLoader();
 
         loader.setLocation(this.getClass().getResource("/resources/fxml/MainSceneWindow.fxml"));
         StackPane stackPane = loader.load();
 
         controller = loader.getController();
-
+        controller.Init();
         Scene scene = new Scene(stackPane,1000,750);
 
 
@@ -32,7 +36,6 @@ public class Main extends Application {
         primaryStage.setTitle("Hello World");
         primaryStage.show();
 
-        Init();
         KeyPolling.pollScene(scene);
 
         AnimationTimer timer = new AnimationTimer() {
@@ -44,22 +47,20 @@ public class Main extends Application {
             }
         };
         timer.start();
+
+        TileDatabase.Init();
     }
     private float lastFrameNanos;
 
     private void tick(float deltaTime){
         //Input -> logic -> rendering
-
-        map.Update(deltaTime);
-        Palette.Update();
-
+        if(menuController != null){
+            menuController.Update(deltaTime);
+        }else{
+            controller.Update(deltaTime);
+        }
     }
 
-    private void Init(){
-        TileDatabase.Init();
-        Palette.Init();
-        map = new Map();
-    }
 
     public static void main(String[] args) {
         launch(args);

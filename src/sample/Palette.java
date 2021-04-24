@@ -17,7 +17,7 @@ public class Palette {
     private static Tile selectedTile;
     private static Layer activeLayer;
     private static Map currentMap;
-
+    private static boolean collisionMode = false;
     public static void Init(){
         Main.controller.setToTileSetMode();
         for(TileSet tileSet: TileDatabase.tileSets){
@@ -27,6 +27,7 @@ public class Palette {
             view.setViewport(new Rectangle2D(0,0,Math.min(256,img.getWidth()),Math.min(256,img.getHeight())));
             Main.controller.AddTileSet(view, tileSet);
         }
+        setCurrentMap(new Map());
     }
 
     public static void chooseTileSet(TileSet tileSet){
@@ -63,27 +64,44 @@ public class Palette {
         return currentMap;
     }
 
+    public static void setCollisionMode(boolean mode){
+        collisionMode = mode;
+    }
+
+    public static boolean isCollisionMode(){
+        return collisionMode;
+    }
+
     private static double lastMouseX;
     private static double lastMouseY;
 
     private static boolean lastTickPressed;
 
-    public static void Update(){
+    public static void Update(float deltaTime){
         if(KeyPolling.isDown(MouseButton.PRIMARY)){
             if(lastTickPressed == false){
                 lastMouseX = KeyPolling.getMouseX();
                 lastMouseY = KeyPolling.getMouseY();
             }
-            Draw(lastMouseX,lastMouseY,KeyPolling.getMouseX(),KeyPolling.getMouseY());
+            Draw(lastMouseX,lastMouseY,KeyPolling.getMouseX(),KeyPolling.getMouseY(), true);
+            lastTickPressed = true;
+        }else if(KeyPolling.isDown(MouseButton.SECONDARY)){
+            if(lastTickPressed == false){
+                lastMouseX = KeyPolling.getMouseX();
+                lastMouseY = KeyPolling.getMouseY();
+            }
+            Draw(lastMouseX,lastMouseY,KeyPolling.getMouseX(),KeyPolling.getMouseY(), false);
             lastTickPressed = true;
         }else{
             lastTickPressed = false;
         }
         lastMouseX = KeyPolling.getMouseX();
         lastMouseY = KeyPolling.getMouseY();
+
+        currentMap.Update(deltaTime);
     }
 
-    private static void Draw(double sX, double sY, double dX, double dY){
+    private static void Draw(double sX, double sY, double dX, double dY, boolean draw){
         if(activeLayer == null)
             return;
         Canvas canvas = Main.controller.getCanvas();
@@ -110,7 +128,19 @@ public class Palette {
                 Shape shape1 = (Shape)line;
                 Rectangle rect = new Rectangle(left,down,right-left,up-down);
                 if(Shape.intersect(shape1,rect).getBoundsInLocal().getWidth() != -1){
-                    activeLayer.setTileAtPos(x,y,selectedTile);
+                    if(draw) {
+                        if (collisionMode) {
+                            activeLayer.setCollisionAtPos(x, y, true);
+                        } else {
+                            activeLayer.setTileAtPos(x, y, selectedTile);
+                        }
+                    }else{
+                        if (collisionMode) {
+                            activeLayer.setCollisionAtPos(x, y, false);
+                        } else {
+                            activeLayer.setTileAtPos(x, y, null);
+                        }
+                    }
                 }
 
             }

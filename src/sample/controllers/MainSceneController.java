@@ -1,12 +1,11 @@
 package sample.controllers;
 
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
@@ -14,21 +13,14 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.TextAlignment;
-import sample.Layer;
-import sample.Palette;
-import sample.Tile;
-import sample.TileSet;
+import sample.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainSceneController {
-
-    @FXML
-    Button resetButton;
 
     @FXML
     ScrollPane assetsBox;
@@ -73,6 +65,42 @@ public class MainSceneController {
     @FXML
     public void deleteLayer(){
         Palette.getCurrentMap().deleteLayer();
+    }
+
+    @FXML
+    public void setCollisionMode(ActionEvent e){
+        Palette.setCollisionMode(((CheckBox)e.getTarget()).isSelected());
+    }
+
+    @FXML
+    public void saveAndClose(){//TODO
+        try {
+            FXMLLoader loader = new FXMLLoader();
+
+            loader.setLocation(this.getClass().getResource("/resources/fxml/Menu.fxml"));
+
+            StackPane stackPane = loader.load();
+
+            Main.menuController = loader.getController();
+            Main.menuController.Init();
+            Scene scene = new Scene(stackPane, 1000, 750);
+
+            Main.primaryStage.setScene(scene);
+
+            KeyPolling.pollScene(scene);
+            Main.controller = null;
+
+        }catch(IOException e){
+            System.out.println("We have bug here, failed to open menu");
+        }
+    }
+
+    public void Init(){
+        Palette.Init();
+    }
+
+    public void Update(float deltaTime){
+        Palette.Update(deltaTime);
     }
 
     public void AddTileSet(ImageView view, TileSet tileSet){
@@ -175,6 +203,13 @@ public class MainSceneController {
         int size = tile.getTileSet().getTileSize();
         gc.drawImage(img, tile.getX() * size,tile.getY()*size,
                 size,size,a,b,32,32);
+    }
+
+    public void drawCross(int x, int y){
+        gc = canvas.getGraphicsContext2D();
+        Image img = new Image(getClass().getResource("/resources/textures/mark.png").toString());
+        int size = 32;
+        gc.drawImage(img,x,y,size,size);
     }
 
     public Canvas getCanvas(){

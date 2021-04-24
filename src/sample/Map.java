@@ -61,12 +61,11 @@ public class Map {
     private ArrayList<Layer> layers;
     private Camera camera;
     private Layer selectedLayer;
-    Map(){
+    public Map(){
         layers = new ArrayList<>();
         layers.add(new Layer());
         layers.add(new Layer());
         Palette.setActiveLayer(layers.get(0));
-        Palette.setCurrentMap(this);
         camera = new Camera(Main.controller.canvas);
         RefreshLayersGUI();
     }
@@ -121,12 +120,18 @@ public class Map {
                 for(Layer layer: layers) {
                     if(!layer.isDrawable())
                         continue;
-                    Tile tile = layer.getTileAtPos(x,y);
-                    if(tile == null)
-                        continue;
-                    int size = tile.getTileSet().getTileSize();
+                    Tile tile = layer.getTileAtPos(x, y);
+                    if (tile != null) {
+                        int size = tile.getTileSet().getTileSize();
 
-                    Main.controller.setCanvas(tile, (int)((x*32)-camera.getX()), (int)((y*32)-camera.getY()));
+                        Main.controller.setCanvas(tile, (int) ((x * 32) - camera.getX()), (int) ((y * 32) - camera.getY()));
+                    }
+                    if(Palette.isCollisionMode()){
+                        boolean blocked = layer.getCollisionAtPos(x,y);
+                        if(blocked){
+                            Main.controller.drawCross((int)(x*32 - camera.getY()),(int)(y*32 - camera.getY()));
+                        }
+                    }
                 }
             }
         }
