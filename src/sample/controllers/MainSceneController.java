@@ -17,6 +17,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import sample.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -73,7 +74,7 @@ public class MainSceneController {
     }
 
     @FXML
-    public void saveAndClose(){//TODO
+    public void saveAndClose(){
         try {
             FXMLLoader loader = new FXMLLoader();
 
@@ -90,13 +91,15 @@ public class MainSceneController {
             KeyPolling.pollScene(scene);
             Main.controller = null;
 
+            Palette.getCurrentMap().saveToFile();
+
         }catch(IOException e){
-            System.out.println("We have bug here, failed to open menu");
+            System.out.println("We have bug here, failed to open menu" + e);
         }
     }
 
-    public void Init(){
-        Palette.Init();
+    public void Init(File mapSource){
+        Palette.Init(mapSource);
     }
 
     public void Update(float deltaTime){
@@ -154,7 +157,7 @@ public class MainSceneController {
         returnButton.setMaxHeight(50);
         returnButton.setTranslateX(135);
         returnButton.setTranslateY(-350);
-        returnButton.setOnAction(e -> {Palette.Init();
+        returnButton.setOnAction(e -> {Palette.createTileSetsView();
                                         mainPane.getChildren().remove(returnButton);});
         mainPane.getChildren().add(returnButton);
 

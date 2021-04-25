@@ -30,4 +30,8 @@ public class Tile {
         return yPos;
     }
 
+    public int getId(){
+        return id;
+    }
+
 }

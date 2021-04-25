@@ -6,8 +6,13 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.security.Key;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Map {
 
@@ -24,8 +29,8 @@ public class Map {
         Camera(Canvas can){
             width = can.getWidth();
             height = can.getHeight();
-            x = maxX/2;
-            y = maxY/2;
+            x = maxX/2 - width/2;
+            y = maxY/2 - height/2;
         }
 
         public void addPosition(double x, double y){
@@ -61,13 +66,113 @@ public class Map {
     private ArrayList<Layer> layers;
     private Camera camera;
     private Layer selectedLayer;
-    public Map(){
+    private File source;
+    private String name;
+
+    public Map(File source){
+        this.source = source;
         layers = new ArrayList<>();
-        layers.add(new Layer());
-        layers.add(new Layer());
-        Palette.setActiveLayer(layers.get(0));
         camera = new Camera(Main.controller.canvas);
         RefreshLayersGUI();
+        loadFromFile();
+    }
+
+    private void loadFromFile(){
+        try{
+            layers.clear();
+            Scanner scanner = new Scanner(source);
+            name = scanner.nextLine();
+            int width = scanner.nextInt();
+            int height = scanner.nextInt();
+            int layersNo = scanner.nextInt();
+            int xOffset = (1001 - width)/2;
+            int yOffset = (1001 - height)/2;
+            for(int i = 0; i < layersNo;i++){
+                Layer layer = new Layer();
+
+                for(int y = 0; y < height;y++){
+                    for(int x = 0; x < width;x++){
+                        int tileId = scanner.nextInt();
+                        if(tileId == 0)
+                            continue;
+                        layer.setTileAtPos(xOffset+x,yOffset+y,TileDatabase.getTile(tileId));
+                    }
+                }
+                for(int y = 0; y < height;y++){
+                    for(int x = 0; x < width;x++){
+                        int blocked = scanner.nextInt();
+                        if(blocked == 0)
+                            continue;
+                        layer.setCollisionAtPos(xOffset + x,yOffset + y,true);
+                    }
+                }
+                layers.add(layer);
+            }
+            scanner.close();
+            RefreshLayersGUI();
+
+        }catch(Exception e){
+            System.out.println("Failed to load file: " + e);
+        }
+    }
+
+    public void saveToFile(){
+        int xMin = 2000;
+        int xMax = -1;
+        int yMin = 2000;
+        int yMax = -1;
+        for(Layer layer: layers){
+            for(int y = 0; y < 1001;y++){
+                for(int x = 0; x < 1001;x++){
+                    if(layer.getTileAtPos(x,y) != null || layer.getCollisionAtPos(x,y)){
+                        xMin = Math.min(xMin,x);
+                        xMax = Math.max(xMax,x);
+                        yMin = Math.min(yMin,y);
+                        yMax = Math.max(yMax,y);
+                    }
+                }
+            }
+        }
+        int width = xMax-xMin + 1;
+        int height = yMax-yMin + 1;
+        if(width < 0)
+            width = 0;
+        if(height < 0)
+            height = 0;
+        try {
+            FileWriter writer = new FileWriter(source);
+            writer.write(name + "\n");
+            writer.write(String.valueOf(width) + " ");
+            writer.write(String.valueOf(height) + " ");
+            writer.write(String.valueOf(layers.size()) + "\n");
+
+            for(Layer layer: layers){
+                for(int y = yMin; y <= yMax;y++){
+                    for(int x = xMin; x <= xMax;x++){
+                        if(layer.getTileAtPos(x,y) != null){
+                            writer.write(String.valueOf(layer.getTileAtPos(x,y).getId()) + " ");
+                        }else{
+                            writer.write("0 ");
+                        }
+                    }
+                    writer.write("\n");
+                }
+
+                for(int y = yMin; y <= yMax;y++){
+                    for(int x = xMin; x <= xMax;x++){
+                        if(layer.getCollisionAtPos(x,y) == true){
+                            writer.write("1 ");
+                        }else{
+                            writer.write("0 ");
+                        }
+                    }
+                    writer.write("\n");
+                }
+            }
+            writer.close();
+        }catch(Exception e){
+            System.out.println("Failed to write to file: " + e);
+        }
     }
 
     public Camera getCamera(){
@@ -129,7 +234,7 @@ public class Map {
                     if(Palette.isCollisionMode()){
                         boolean blocked = layer.getCollisionAtPos(x,y);
                         if(blocked){
-                            Main.controller.drawCross((int)(x*32 - camera.getY()),(int)(y*32 - camera.getY()));
+                            Main.controller.drawCross((int)(x*32 - camera.getX()),(int)(y*32 - camera.getY()));
                         }
                     }
                 }

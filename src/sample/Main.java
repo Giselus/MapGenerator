@@ -23,11 +23,11 @@ public class Main extends Application {
         Main.primaryStage = primaryStage;
         FXMLLoader loader = new FXMLLoader();
 
-        loader.setLocation(this.getClass().getResource("/resources/fxml/MainSceneWindow.fxml"));
+        loader.setLocation(this.getClass().getResource("/resources/fxml/Menu.fxml"));
         StackPane stackPane = loader.load();
 
-        controller = loader.getController();
-        controller.Init();
+        menuController = loader.getController();
+        menuController.Init();
         Scene scene = new Scene(stackPane,1000,750);
 
 
@@ -60,7 +60,6 @@ public class Main extends Application {
             controller.Update(deltaTime);
         }
     }
-
 
     public static void main(String[] args) {
         launch(args);

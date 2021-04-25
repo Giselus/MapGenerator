@@ -9,6 +9,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 
+import java.io.File;
 import java.security.Key;
 import java.util.concurrent.RecursiveAction;
 
@@ -18,7 +19,15 @@ public class Palette {
     private static Layer activeLayer;
     private static Map currentMap;
     private static boolean collisionMode = false;
-    public static void Init(){
+    public static void Init(File mapSource){
+        collisionMode = false;
+        activeLayer = null;
+        selectedTile = null;
+        createTileSetsView();
+        setCurrentMap(new Map(mapSource));
+    }
+
+    public static void createTileSetsView(){
         Main.controller.setToTileSetMode();
         for(TileSet tileSet: TileDatabase.tileSets){
             ImageView view = new ImageView();
@@ -27,7 +36,6 @@ public class Palette {
             view.setViewport(new Rectangle2D(0,0,Math.min(256,img.getWidth()),Math.min(256,img.getHeight())));
             Main.controller.AddTileSet(view, tileSet);
         }
-        setCurrentMap(new Map());
     }
 
     public static void chooseTileSet(TileSet tileSet){
@@ -41,7 +49,6 @@ public class Palette {
                 Main.controller.AddTile(tileSet.getTile(j,i));
             }
         }
-        System.out.println(tileSet.getTilesInColumn() * tileSet.getTilesInRow());
     }
 
     public static void chooseTile(Tile tile){
