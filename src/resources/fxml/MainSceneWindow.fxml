@@ -37,7 +37,8 @@
             <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0">
                <children>
                   <Button mnemonicParsing="false" onAction="#deleteLayer" text="Usuń warstwę" />
-                  <CheckBox mnemonicParsing="false" onAction="#setCollisionMode" prefHeight="26.0" prefWidth="88.0" text="Tryb kolizji" />
+                  <CheckBox fx:id="collisionCheck" mnemonicParsing="false" onAction="#setCollisionMode" prefHeight="26.0" prefWidth="88.0" text="Tryb kolizji" />
+                  <CheckBox fx:id="eventCheck" mnemonicParsing="false" onAction="#setEventMode" prefHeight="26.0" prefWidth="100.0" text="Tryb eventów" />
                </children>
                <opaqueInsets>
                   <Insets />

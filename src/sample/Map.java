@@ -5,6 +5,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.util.Pair;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,6 +13,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.security.Key;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class Map {
@@ -106,6 +108,14 @@ public class Map {
                         layer.setCollisionAtPos(xOffset + x,yOffset + y,true);
                     }
                 }
+                int eventsNo = scanner.nextInt();
+                for(int j = 1; j <= eventsNo;j++){
+                    int x = scanner.nextInt();
+                    int y = scanner.nextInt();
+                    String code = scanner.next();
+                    layer.addEvent(xOffset + x,yOffset + y,code);
+                }
+
                 layers.add(layer);
             }
             scanner.close();
@@ -124,7 +134,7 @@ public class Map {
         for(Layer layer: layers){
             for(int y = 0; y < 1001;y++){
                 for(int x = 0; x < 1001;x++){
-                    if(layer.getTileAtPos(x,y) != null || layer.getCollisionAtPos(x,y)){
+                    if(layer.getTileAtPos(x,y) != null || layer.getCollisionAtPos(x,y) || layer.getEvent(x,y) != null){
                         xMin = Math.min(xMin,x);
                         xMax = Math.max(xMax,x);
                         yMin = Math.min(yMin,y);
@@ -167,6 +177,13 @@ public class Map {
                         }
                     }
                     writer.write("\n");
+                }
+                writer.write(String.valueOf(layer.events.size()) + "\n");
+                for(java.util.Map.Entry entry: layer.events.entrySet()){
+                    writer.write(String.valueOf((((Pair<Integer,Integer>)(entry.getKey())).getKey() - xMin)) + " ");
+                    writer.write(String.valueOf((((Pair<Integer,Integer>)(entry.getKey())).getValue() - yMin)) + " ");
+                    writer.write((String)entry.getValue() + "\n");
+
                 }
             }
             writer.close();
@@ -234,6 +251,11 @@ public class Map {
                     if(Palette.isCollisionMode()){
                         boolean blocked = layer.getCollisionAtPos(x,y);
                         if(blocked){
+                            Main.controller.drawCross((int)(x*32 - camera.getX()),(int)(y*32 - camera.getY()));
+                        }
+                    }
+                    if(Palette.isEventMode()){
+                        if(layer.getEvent(x,y) != null){
                             Main.controller.drawCross((int)(x*32 - camera.getX()),(int)(y*32 - camera.getY()));
                         }
                     }

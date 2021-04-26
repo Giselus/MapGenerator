@@ -1,13 +1,19 @@
 package sample;
 
+import javafx.util.Pair;
+
+import java.util.HashMap;
+
 public class Layer {
 
     private Tile[][] tiles;
     private boolean [][] blocked;
     private boolean drawable = true;
+    public HashMap<Pair<Integer,Integer>, String> events;
     Layer(){
         tiles = new Tile[1001][1001];
         blocked = new boolean[1001][1001];
+        events = new HashMap<>();
     }
 
     public Tile getTileAtPos(int x, int y){
@@ -32,5 +38,17 @@ public class Layer {
 
     public void setDrawable(boolean state){
         drawable = state;
+    }
+
+    public void addEvent(int x, int y, String code){
+        events.put(new Pair<>(x,y),code);
+    }
+
+    public String getEvent(int x, int y){
+        return events.get(new Pair<>(x,y));
+    }
+
+    public void deleteEvent(int x, int y){
+        events.remove(new Pair<>(x,y));
     }
 }

@@ -11,6 +11,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -38,6 +39,11 @@ public class MainSceneController {
     @FXML
     TilePane layersPane;
 
+    @FXML
+    CheckBox collisionCheck;
+
+    @FXML
+    CheckBox eventCheck;
 
     GraphicsContext gc;
 
@@ -69,8 +75,17 @@ public class MainSceneController {
     }
 
     @FXML
-    public void setCollisionMode(ActionEvent e){
-        Palette.setCollisionMode(((CheckBox)e.getTarget()).isSelected());
+    public void setCollisionMode(){
+        eventCheck.setSelected(false);
+        Palette.setCollisionMode(collisionCheck.isSelected());
+        Palette.setEventMode(eventCheck.isSelected());
+    }
+
+    @FXML
+    public void setEventMode(){
+        collisionCheck.setSelected(false);
+        Palette.setCollisionMode(collisionCheck.isSelected());
+        Palette.setEventMode(eventCheck.isSelected());
     }
 
     @FXML
@@ -219,6 +234,40 @@ public class MainSceneController {
         return canvas;
     }
 
+    public void openEventWindow(){
+        AnchorPane pane = new AnchorPane();
+
+        Button closeButton = new Button();
+        closeButton.setText("Cofnij");
+        closeButton.setLayoutX(470);
+        closeButton.setLayoutY(300);
+
+        TextField textField = new TextField();
+        textField.setLayoutX(400);
+        textField.setLayoutY(250);
+
+
+        Button acceptButton = new Button();
+        acceptButton.setLayoutX(400);
+        acceptButton.setLayoutY(300);
+        acceptButton.setText("Stwórz");
+
+        acceptButton.setOnAction(e ->{
+            Palette.setEvent(textField.getText());
+            mainPane.getChildren().remove(pane);
+        });
+
+        closeButton.setOnAction(e ->{
+            Palette.cancelEvent();
+            mainPane.getChildren().remove(pane);
+        });
+
+        pane.getChildren().add(closeButton);
+        pane.getChildren().add(acceptButton);
+        pane.getChildren().add(textField);
+        mainPane.getChildren().add(pane);
+    }
+
     public void RefreshLayersGUI(ArrayList<Layer> layers){
         layersPane.getChildren().clear();
         Integer id = 0;
@@ -261,4 +310,5 @@ public class MainSceneController {
         });
         layersPane.getChildren().add(button);
     }
+
 }

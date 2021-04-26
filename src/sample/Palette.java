@@ -19,8 +19,11 @@ public class Palette {
     private static Layer activeLayer;
     private static Map currentMap;
     private static boolean collisionMode = false;
+    private static boolean eventMode = false;
+
     public static void Init(File mapSource){
         collisionMode = false;
+        eventMode = false;
         activeLayer = null;
         selectedTile = null;
         createTileSetsView();
@@ -79,6 +82,14 @@ public class Palette {
         return collisionMode;
     }
 
+    public static void setEventMode(boolean mode){
+        eventMode = mode;
+    }
+
+    public static boolean isEventMode(){
+        return eventMode;
+    }
+
     private static double lastMouseX;
     private static double lastMouseY;
 
@@ -108,6 +119,29 @@ public class Palette {
         currentMap.Update(deltaTime);
     }
 
+    private static boolean isEventWindowOpened = false;
+    private static int selectedEventX;
+    private static int selectedEventY;
+    public static void setEvent(String code){
+        isEventWindowOpened = false;
+        if(activeLayer != null){
+            activeLayer.addEvent(selectedEventX,selectedEventY,code);
+        }
+    }
+
+    public static void cancelEvent(){
+        isEventWindowOpened = false;
+    }
+
+    private static void openEventWindow(int x, int y){
+        if(isEventWindowOpened)
+            return;
+        selectedEventX = x;
+        selectedEventY = y;
+        Main.controller.openEventWindow();
+        isEventWindowOpened = true;
+    }
+
     private static void Draw(double sX, double sY, double dX, double dY, boolean draw){
         if(activeLayer == null)
             return;
@@ -117,6 +151,15 @@ public class Palette {
         dX -= canvas.getLayoutX();
         sY -= canvas.getLayoutY();
         dY -= canvas.getLayoutY();
+        if(eventMode){
+            int x = (int)(dX+camera.getX())/32;
+            int y = (int)(dY+camera.getY())/32;
+            if(draw)
+                openEventWindow(x,y);
+            else
+                activeLayer.deleteEvent(x,y);
+            return;
+        }
         Line line = new Line(sX,sY,dX,dY);
         if(sX > dX){
             double temp = sX;
@@ -138,13 +181,13 @@ public class Palette {
                     if(draw) {
                         if (collisionMode) {
                             activeLayer.setCollisionAtPos(x, y, true);
-                        } else {
+                        }else{
                             activeLayer.setTileAtPos(x, y, selectedTile);
                         }
                     }else{
                         if (collisionMode) {
                             activeLayer.setCollisionAtPos(x, y, false);
-                        } else {
+                        }else {
                             activeLayer.setTileAtPos(x, y, null);
                         }
                     }
